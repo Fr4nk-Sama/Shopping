@@ -1,17 +1,15 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Shopping.Data.Entities
+namespace Shopping.Models
 {
-    public class Country
+    public class StateViewModel
     {
         public int Id { get; set; }
-        [Display(Name = "Pais")]
+        [Display(Name = "Estado")]
         [MaxLength(50, ErrorMessage = "El campo {0} debe de tener maximo {1} caracteres.")]
         [Required(ErrorMessage = "El campo {0} es obligatorio.")]
         public string Name { get; set; }
 
-        public ICollection<State> States { get; set;}
-        [Display(Name = "Estados")]
-        public int StatesNumber => States == null ? 0 : States.Count;
+        public int CountryId { get; set; }
     }
 }
