@@ -1,17 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Shopping.Data.Entities
+namespace Shopping.Models
 {
-    public class City
+    public class CityViewModel
     {
+
         public int Id { get; set; }
         [Display(Name = "Ciudad")]
         [MaxLength(50, ErrorMessage = "El campo {0} debe de tener maximo {1} caracteres.")]
         [Required(ErrorMessage = "El campo {0} es obligatorio.")]
         public string Name { get; set; }
 
-        public State State { get; set; }
-
-        public ICollection<User> Users { get; set; }
+        public int StateId { get; set; }
     }
 }
