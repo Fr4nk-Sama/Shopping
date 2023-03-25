@@ -26,12 +26,45 @@ namespace Shopping.Helpers
             return await _userManager.CreateAsync(user, password);
         }
 
-        public async Task AddUserToRoleAsync(User user, string roleName)
+		public async Task<User> AddUserAsync(AddUserViewModel model)
+		{
+			User user = new User
+			{
+				Address = model.Address,
+				Document = model.Document,
+				Email = model.Username,
+				FirstName = model.FirstName,
+				LastName = model.LastName,
+				ImageId = model.ImageId,
+				PhoneNumber = model.PhoneNumber,
+				City = await _context.Cities.FindAsync(model.CityId),
+				UserName = model.Username,
+				UserType = model.UserType
+			};
+
+			IdentityResult result = await _userManager.CreateAsync(user, model.Password);
+			if (result != IdentityResult.Success)
+			{
+				return null;
+			}
+
+			User newUser = await GetUserAsync(model.Username);
+			await AddUserToRoleAsync(newUser, user.UserType.ToString());
+			return newUser;
+		}
+
+
+		public async Task AddUserToRoleAsync(User user, string roleName)
         {
             await _userManager.AddToRoleAsync(user, roleName);
         }
 
-        public async Task CheckRoleAsync(string roleName)
+		public Task<IdentityResult> ChangePasswordAsync(User user, string oldPassword, string newPassword)
+		{
+			throw new NotImplementedException();
+		}
+
+		public async Task CheckRoleAsync(string roleName)
         {
             bool roleExists = await _roleManager.RoleExistsAsync(roleName);
             if (!roleExists)
@@ -43,7 +76,22 @@ namespace Shopping.Helpers
             }
         }
 
-        public async Task<User> GetUserAsync(string email)
+		public Task<IdentityResult> ConfirmEmailAsync(User user, string token)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task<string> GenerateEmailConfirmationTokenAsync(User user)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task<string> GeneratePasswordResetTokenAsync(User user)
+		{
+			throw new NotImplementedException();
+		}
+
+		public async Task<User> GetUserAsync(string email)
         {
             return await _context.Users
                 .Include(u => u.City)
@@ -52,7 +100,12 @@ namespace Shopping.Helpers
                 .FirstOrDefaultAsync(u => u.Email == email);
         }
 
-        public async Task<bool> IsUserInRoleAsync(User user, string roleName)
+		public Task<User> GetUserAsync(Guid userId)
+		{
+			throw new NotImplementedException();
+		}
+
+		public async Task<bool> IsUserInRoleAsync(User user, string roleName)
         {
             return await _userManager.IsInRoleAsync(user, roleName);
         }
@@ -66,5 +119,15 @@ namespace Shopping.Helpers
         {
             await _signInManager.SignOutAsync();
         }
-    }
+
+		public Task<IdentityResult> ResetPasswordAsync(User user, string token, string password)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task<IdentityResult> UpdateUserAsync(User user)
+		{
+			throw new NotImplementedException();
+		}
+	}
 }
