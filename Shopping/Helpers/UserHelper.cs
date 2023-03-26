@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Shopping.Data;
 using Shopping.Data.Entities;
+using Shopping.Data;
+using Shopping.Helpers;
 using Shopping.Models;
-using System.Data;
 
-namespace Shopping.Helpers
+namespace Shooping.Helpers
 {
     public class UserHelper : IUserHelper
     {
@@ -13,6 +13,7 @@ namespace Shopping.Helpers
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly SignInManager<User> _signInManager;
+
         public UserHelper(DataContext context, UserManager<User> userManager, RoleManager<IdentityRole> roleManager, SignInManager<User> signInManager)
         {
             _context = context;
@@ -26,45 +27,44 @@ namespace Shopping.Helpers
             return await _userManager.CreateAsync(user, password);
         }
 
-		public async Task<User> AddUserAsync(AddUserViewModel model)
-		{
-			User user = new User
-			{
-				Address = model.Address,
-				Document = model.Document,
-				Email = model.Username,
-				FirstName = model.FirstName,
-				LastName = model.LastName,
-				ImageId = model.ImageId,
-				PhoneNumber = model.PhoneNumber,
-				City = await _context.Cities.FindAsync(model.CityId),
-				UserName = model.Username,
-				UserType = model.UserType
-			};
+        public async Task<User> AddUserAsync(AddUserViewModel model)
+        {
+            User user = new()
+            {
+                Address = model.Address,
+                Document = model.Document,
+                Email = model.Username,
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                ImageId = model.ImageId,
+                PhoneNumber = model.PhoneNumber,
+                City = await _context.Cities.FindAsync(model.CityId),
+                UserName = model.Username,
+                UserType = model.UserType
+            };
 
-			IdentityResult result = await _userManager.CreateAsync(user, model.Password);
-			if (result != IdentityResult.Success)
-			{
-				return null;
-			}
+            IdentityResult result = await _userManager.CreateAsync(user, model.Password);
+            if (result != IdentityResult.Success)
+            {
+                return null;
+            }
 
-			User newUser = await GetUserAsync(model.Username);
-			await AddUserToRoleAsync(newUser, user.UserType.ToString());
-			return newUser;
-		}
+            User newUser = await GetUserAsync(model.Username);
+            await AddUserToRoleAsync(newUser, user.UserType.ToString());
+            return newUser;
+        }
 
-
-		public async Task AddUserToRoleAsync(User user, string roleName)
+        public async Task AddUserToRoleAsync(User user, string roleName)
         {
             await _userManager.AddToRoleAsync(user, roleName);
         }
 
-		public async Task<IdentityResult> ChangePasswordAsync(User user, string oldPassword, string newPassword)
-		{
-			return await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);
-		}
+        public async Task<IdentityResult> ChangePasswordAsync(User user, string oldPassword, string newPassword)
+        {
+            return await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);
+        }
 
-		public async Task CheckRoleAsync(string roleName)
+        public async Task CheckRoleAsync(string roleName)
         {
             bool roleExists = await _roleManager.RoleExistsAsync(roleName);
             if (!roleExists)
@@ -76,22 +76,7 @@ namespace Shopping.Helpers
             }
         }
 
-		public Task<IdentityResult> ConfirmEmailAsync(User user, string token)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<string> GenerateEmailConfirmationTokenAsync(User user)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<string> GeneratePasswordResetTokenAsync(User user)
-		{
-			throw new NotImplementedException();
-		}
-
-		public async Task<User> GetUserAsync(string email)
+        public async Task<User> GetUserAsync(string email)
         {
             return await _context.Users
                 .Include(u => u.City)
@@ -100,8 +85,8 @@ namespace Shopping.Helpers
                 .FirstOrDefaultAsync(u => u.Email == email);
         }
 
-		public async Task<User> GetUserAsync(Guid userId)
-		{
+        public async Task<User> GetUserAsync(Guid userId)
+        {
             return await _context.Users
                 .Include(u => u.City)
                 .ThenInclude(c => c.State)
@@ -109,7 +94,7 @@ namespace Shopping.Helpers
                 .FirstOrDefaultAsync(u => u.Id == userId.ToString());
         }
 
-		public async Task<bool> IsUserInRoleAsync(User user, string roleName)
+        public async Task<bool> IsUserInRoleAsync(User user, string roleName)
         {
             return await _userManager.IsInRoleAsync(user, roleName);
         }
@@ -124,14 +109,29 @@ namespace Shopping.Helpers
             await _signInManager.SignOutAsync();
         }
 
-		public Task<IdentityResult> ResetPasswordAsync(User user, string token, string password)
-		{
-			throw new NotImplementedException();
-		}
+        public async Task<IdentityResult> UpdateUserAsync(User user)
+        {
+            return await _userManager.UpdateAsync(user);
+        }
 
-		public async Task<IdentityResult> UpdateUserAsync(User user)
-		{
-			return await _userManager.UpdateAsync(user);
-		}
-	}
+        public async Task<IdentityResult> ConfirmEmailAsync(User user, string token)
+        {
+            return await _userManager.ConfirmEmailAsync(user, token);
+        }
+
+        public async Task<string> GenerateEmailConfirmationTokenAsync(User user)
+        {
+            return await _userManager.GenerateEmailConfirmationTokenAsync(user);
+        }
+
+        public async Task<string> GeneratePasswordResetTokenAsync(User user)
+        {
+            return await _userManager.GeneratePasswordResetTokenAsync(user);
+        }
+
+        public async Task<IdentityResult> ResetPasswordAsync(User user, string token, string password)
+        {
+            return await _userManager.ResetPasswordAsync(user, token, password);
+        }
+    }
 }

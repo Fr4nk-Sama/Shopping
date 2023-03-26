@@ -1,5 +1,4 @@
-﻿using Azure;
-//using Shopping.Common;
+﻿using Shopping.Common;
 
 namespace Shooping.Helpers
 {
