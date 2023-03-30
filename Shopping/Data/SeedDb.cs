@@ -102,7 +102,7 @@ namespace Shopping.Data
                     ImageId = imageId
                 };
 
-                await _userHelper.AddUserAsync(user, "123456");
+                await _userHelper.AddUserAsync(user, "Daniel8113.");
                 await _userHelper.AddUserToRoleAsync(user, userType.ToString());
 
                 string token = await _userHelper.GenerateEmailConfirmationTokenAsync(user);
